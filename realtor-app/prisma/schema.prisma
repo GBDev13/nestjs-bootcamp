@@ -54,7 +54,7 @@ model Image {
   updated_at DateTime @updatedAt
 
   home_id Int
-  home    Home @relation(fields: [home_id], references: [id])
+  home    Home @relation(fields: [home_id], references: [id], onDelete: Cascade)
 
   @@map("images")
 }
