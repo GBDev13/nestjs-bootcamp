@@ -13,7 +13,12 @@ import {
 import { PropertyType, UserType } from '@prisma/client';
 import { Roles } from 'src/decorators/role.decorator';
 import { User, UserInfo } from 'src/user/decorators/user.decorator';
-import { CreateHomeDto, HomeResponseDto, UpdateHomeDto } from './dto/home.dto';
+import {
+  CreateHomeDto,
+  HomeResponseDto,
+  InquireDto,
+  UpdateHomeDto,
+} from './dto/home.dto';
 import { HomeService } from './home.service';
 
 @Controller('home')
@@ -80,5 +85,25 @@ export class HomeController {
     if (realtor.id !== user.id) throw new UnauthorizedException();
 
     return this.homeService.deleteHomeById(id);
+  }
+
+  @Roles(UserType.BUYER)
+  @Post('/:id/inquire')
+  inquire(
+    @Param('id') homeId: number,
+    @User() user: UserInfo,
+    @Body() { message }: InquireDto,
+  ) {
+    return this.homeService.inquire(user, homeId, message);
+  }
+
+  @Roles(UserType.REALTOR)
+  @Get('/:id/messages')
+  async getHomeMessages(@Param('id') homeId: number, @User() user: UserInfo) {
+    const realtor = await this.homeService.getRealtorByHomeId(homeId);
+
+    if (realtor.id !== user.id) throw new UnauthorizedException();
+
+    return this.homeService.getMessagesByHomeId(homeId);
   }
 }
